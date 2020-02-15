@@ -1,0 +1,43 @@
+﻿apiVersion: v1
+kind: Namespace
+metadata:
+  name: skylight1
+---
+apiVersion: v1
+data:
+  security.json: |-
+    {
+      "kvflxvolmnt": "/kvmnt"
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configmapsink8s
+  namespace: skylight1
+  labels:
+    app: configmapsink8s
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: configmapsink8s
+  template:
+    metadata:
+      name: configmapsink8s
+      labels:
+        app: configmapsink8s
+    spec:
+      volumes:
+        - name: config-volume
+          configMap:
+            name: vsa-config
+      containers:
+      - name: css-dcs-skylight-virtualsupportagent
+        image: skylightacrcoredev.azurecr.io/configmapink8s:v2
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app
+        ports:
+            - containerPort: 80
+        imagePullPolicy: IfNotPresent
